@@ -19,13 +19,8 @@ label{display:block;font-size:12px;font-weight:750;color:#3e5a4b;margin:11px 0 5
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="eyebrow">Sistem pencatatan usaha</div><h1>Manajemen Usaha PET Botol</h1><p>Pembelian bodongan · biaya produksi · hasil sortir · transportasi · penjualan</p><div class="authbar"><span id="authStatus" class="authstatus">Memeriksa konfigurasi...</span><button id="logoutBtn" type="button" hidden>Keluar</button></div></div></header>
-<section class="authpanel" id="loginPanel">
-<h2>Login ke aplikasi</h2><p>Masuk dengan akun yang sudah dibuat oleh admin. Data transaksi akan disimpan di database online setelah Supabase dikonfigurasi.</p>
-<form id="loginForm"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="email pengguna"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="password"><button class="btn primary" type="submit">Login</button></form>
-<div id="setupNotice" class="note">Aplikasi belum terhubung ke Supabase. Isi URL proyek dan publishable/anon key di file <b>config.js</b>, lalu jalankan SQL yang disertakan. Jangan pernah memasukkan service_role/secret key ke aplikasi browser.</div>
-</section>
-<main class="wrap" id="appMain" hidden>
+<header><div class="wrap"><div class="eyebrow">Sistem pencatatan usaha</div><h1>Manajemen Usaha PET Botol</h1><p>Pembelian bodongan · biaya produksi · hasil sortir · transportasi · penjualan</p><div class="authbar"><span id="authStatus" class="authstatus">Memeriksa koneksi database...</span></div></div></header>
+<main class="wrap" id="appMain">
 <nav class="nav" aria-label="Menu aplikasi">
 <button class="active" data-page="dashboard">Dashboard</button><button data-page="pembelian">Pembelian</button><button data-page="produksi">Produksi & Hasil</button><button data-page="penjualan">Penjualan</button><button data-page="aset">Aset & Investasi</button><button data-page="biaya">Biaya Tetap</button><button data-page="laporan">Laporan</button>
 </nav>
@@ -125,13 +120,13 @@ label{display:block;font-size:12px;font-weight:750;color:#3e5a4b;margin:11px 0 5
 <div class="section"><h3>Ringkasan per line</h3><div class="tablewrap"><table><thead><tr><th>Line</th><th>Pembelian</th><th>Biaya proses</th><th>Transportasi</th><th>Penjualan</th><th>Selisih kas</th></tr></thead><tbody id="reportLines"></tbody></table></div></div>
 <div class="note">Selisih kas = omzet penjualan − nilai pembelian − biaya proses − biaya transportasi. Angka ini belum tentu sama dengan laba bersih karena stok, biaya tetap bulanan, dan metode penilaian persediaan belum dimasukkan otomatis.</div></div>
 </section>
-<p class="hint" id="storageHint">Saat login, data tersinkron ke database online. Ekspor CSV secara berkala untuk cadangan.</p>
+<p class="hint" id="storageHint">Mode tanpa login. Data tersinkron online jika Supabase tersambung. Akses database publik; jangan simpan data rahasia. Ekspor CSV secara berkala untuk cadangan.</p>
 </main><div class="toast" id="toast"></div>
 <script>
 (()=>{
 const KEY='petBotolManager_v2',SETKEY='petBotolSettings_v2';
 const SUPABASE_URL=window.PETBOTOL_SUPABASE_URL||'',SUPABASE_KEY=window.PETBOTOL_SUPABASE_KEY||'';
-let supabaseClient=null,currentSession=null,cloudReady=false,saveChain=Promise.resolve();
+let supabaseClient=null,cloudReady=false,saveChain=Promise.resolve();
 const types=['BN','BM','Minyak','Galon','Warna'],lines=['Sedayu','Pandak','Sentolo'];
 let db={purchases:[],productions:[],sales:[],deliveries:[],assets:[]},settings={clean:0,sort:0,press:0,buyTransport:0,delivery:0,Sedayu:0,Pandak:0,Sentolo:0,general:0};
 const $=id=>document.getElementById(id),num=id=>Math.max(0,Number($(id).value)||0);
@@ -143,8 +138,8 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function toast(s){$('toast').textContent=s;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2300)}
 function save(){
  localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(SETKEY,JSON.stringify(settings));
- if(!supabaseClient||!currentSession||!cloudReady)return;
- const payload={id:1,data:db,settings,updated_at:new Date().toISOString(),updated_by:currentSession.user.id};
+ if(!supabaseClient||!cloudReady)return;
+ const payload={id:1,data:db,settings,updated_at:new Date().toISOString()};
  saveChain=saveChain.then(async()=>{const {error}=await supabaseClient.from('pet_botol_app_state').upsert(payload,{onConflict:'id'});if(error){console.error(error);$('storageHint').textContent='Gagal menyinkronkan ke database. Periksa koneksi dan izin Supabase.';toast('Gagal menyimpan ke database online')}else{$('storageHint').textContent='Tersinkron online · perubahan terakhir tersimpan ke database.'}}).catch(err=>console.error(err));
 }
 function loadLocal(){try{let x=JSON.parse(localStorage.getItem(KEY)||'{}');db={purchases:Array.isArray(x.purchases)?x.purchases:[],productions:Array.isArray(x.productions)?x.productions:[],sales:Array.isArray(x.sales)?x.sales:[],deliveries:Array.isArray(x.deliveries)?x.deliveries:[],assets:Array.isArray(x.assets)?x.assets:[]}}catch(e){}try{settings={...settings,...JSON.parse(localStorage.getItem(SETKEY)||'{}')}}catch(e){}}
@@ -154,7 +149,7 @@ async function loadCloud(){
  if(error)throw error;
  if(data){const x=data.data||{};db={purchases:Array.isArray(x.purchases)?x.purchases:[],productions:Array.isArray(x.productions)?x.productions:[],sales:Array.isArray(x.sales)?x.sales:[],deliveries:Array.isArray(x.deliveries)?x.deliveries:[],assets:Array.isArray(x.assets)?x.assets:[]};settings={...settings,...(data.settings||{})};localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(SETKEY,JSON.stringify(settings));}
  else if(hasLocalData()&&confirm('Database online masih kosong. Ditemukan data lokal di perangkat ini. Unggah data lokal tersebut ke database online?')){cloudReady=true;save();await saveChain;}
- cloudReady=true;render();fillSettings();updatePreviews();updateAssetPreview();$('storageHint').textContent='Tersinkron online · data dibagikan oleh akun yang diizinkan pada proyek ini.';
+ cloudReady=true;render();fillSettings();updatePreviews();updateAssetPreview();$('storageHint').textContent='Tersinkron online · database dapat diakses siapa saja yang memiliki URL aplikasi.';
 }
 function sum(arr,key='total'){return arr.reduce((a,x)=>a+(Number(x[key])||0),0)}
 function costs(){return sum(db.productions,'cost')+sum(db.purchases,'transport')+sum(db.purchases,'other')+sum(db.deliveries,'cost')}
@@ -214,11 +209,15 @@ $('exportReport').addEventListener('click',()=>{const month=$('reportMonth').val
 ['pDate','rDate','sDate','tDate','aDate'].forEach(i=>$(i).value=today());
  loadLocal();fillSettings();render();updatePreviews();updateAssetPreview();
  const configured=Boolean(SUPABASE_URL&&SUPABASE_KEY&&window.supabase&&window.supabase.createClient);
- if(configured){supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);$('setupNotice').hidden=true;$('authStatus').textContent='Supabase siap · silakan login';supabaseClient.auth.getSession().then(({data})=>{if(data.session)activateSession(data.session)});supabaseClient.auth.onAuthStateChange((_event,session)=>{if(session&&!currentSession)activateSession(session);else if(!session&&currentSession)deactivateSession()});}
- else{$('authStatus').textContent='Belum terhubung ke database';$('loginForm').querySelector('button').disabled=true;$('loginForm').querySelector('button').textContent='Konfigurasi Supabase dulu';}
- async function activateSession(session){currentSession=session;$('loginPanel').hidden=true;$('appMain').hidden=false;$('logoutBtn').hidden=false;$('authStatus').textContent='Login: '+(session.user.email||'pengguna');try{await loadCloud()}catch(err){console.error(err);$('storageHint').textContent='Tidak dapat membaca database. Periksa SQL, RLS, dan konfigurasi Supabase.';toast('Gagal memuat data online');cloudReady=false}}
- function deactivateSession(){currentSession=null;cloudReady=false;$('loginPanel').hidden=false;$('appMain').hidden=true;$('logoutBtn').hidden=true;$('authStatus').textContent='Sesi sudah berakhir'}
- $('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!supabaseClient)return;const btn=$('loginForm').querySelector('button');btn.disabled=true;btn.textContent='Memproses...';const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});btn.disabled=false;btn.textContent='Login';if(error){toast('Login gagal: '+error.message);return}});
- $('logoutBtn').addEventListener('click',async()=>{if(supabaseClient)await supabaseClient.auth.signOut();deactivateSession()});
+ if(configured){
+   supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+   $('authStatus').textContent='Menghubungkan ke database online…';
+   loadCloud().then(()=>{$('authStatus').textContent='Mode tanpa login · Supabase tersambung';})
+     .catch(err=>{console.error(err);cloudReady=false;$('authStatus').textContent='Database gagal terhubung · mode lokal sementara';$('storageHint').textContent='Gagal membaca database online. Periksa URL/key, SQL, dan izin akses anon.';toast('Gagal memuat data online');});
+ } else {
+   $('authStatus').textContent='Supabase belum dikonfigurasi · mode lokal';
+   $('storageHint').textContent='Data hanya tersimpan di browser karena Supabase belum dikonfigurasi.';
+ }
+
 })();
 </script></body></html>

@@ -18,3 +18,7 @@
 - Kebijakan database mengizinkan semua pengguna yang telah login mengakses dataset bersama. Buat akun hanya untuk orang tepercaya.
 - Dataset disimpan dalam satu baris JSON; perubahan hampir bersamaan dari beberapa perangkat dapat saling menimpa. Ekspor CSV sebagai backup secara berkala.
 - Sebelum dipakai untuk pencatatan utama, uji login, tambah transaksi, refresh halaman, dan akses dari perangkat lain.
+
+
+## Mode tanpa login (uji coba)
+Aplikasi ini tidak meminta akun login. Jalankan ulang `supabase.sql` di SQL Editor untuk mengaktifkan akses anon. **Peringatan:** semua orang yang mengetahui URL aplikasi/proyek dapat membaca, menimpa, atau menghapus data usaha. Jangan gunakan untuk data sensitif atau produksi; aktifkan kembali autentikasi dan kebijakan akses terbatas sebelum dipakai sungguhan.
