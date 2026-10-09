@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manajemen Usaha PET Botol — Online</title>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#176b49;--deep:#123e2d;--mint:#e7f4eb;--bg:#f4f7f4;--ink:#20362c;--muted:#6c7b72;--line:#dce6de;--white:#fff;--red:#b33b3b;--amber:#8a5b12}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,var(--deep),#24865a);color:#fff;padding:25px 18px 38px}.wrap{max-width:1200px;margin:auto;padding:0 16px}.eyebrow{text-transform:uppercase;letter-spacing:1.5px;font-size:11px;opacity:.8;font-weight:800}h1{font-size:clamp(24px,4vw,34px);line-height:1.2;margin:6px 0}header p{margin:0;color:#e2f1e7}
+main{margin-top:-20px;padding-bottom:35px}.nav{display:flex;gap:7px;flex-wrap:wrap;background:white;border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:0 6px 22px #123e2d0c}.nav button{border:0;background:transparent;border-radius:9px;padding:10px 13px;color:var(--ink);font:inherit;font-weight:750;cursor:pointer}.nav button.active{background:var(--mint);color:var(--green)}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}.metric,.card{background:var(--white);border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 20px #123e2d08}.metric{padding:15px}.metric small{display:block;color:var(--muted);font-weight:750}.metric strong{display:block;font-size:clamp(18px,2.3vw,25px);overflow-wrap:anywhere;margin:5px 0}.metric span{color:var(--muted);font-size:11px}
+.page{display:none;margin-top:15px}.page.active{display:block}.layout{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:15px;align-items:start}.card{padding:18px}.card h2{font-size:18px;margin:0 0 3px}.sub{color:var(--muted);font-size:12px;margin:0 0 14px}
+label{display:block;font-size:12px;font-weight:750;color:#3e5a4b;margin:11px 0 5px}input,select,textarea{font:inherit;width:100%;border:1px solid #d3e0d6;border-radius:9px;padding:10px;background:white;color:var(--ink);min-width:0}input:focus,select:focus{outline:2px solid #c8e7d2;border-color:#6bb487}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.btn{border:0;border-radius:9px;padding:10px 13px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white;width:100%;margin-top:14px}.soft{background:#eaf3ed;color:#24533b}.danger{background:#fff0f0;color:var(--red);padding:6px 9px;font-size:12px}.total{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#eff8f1;border:1px solid #dcefe1;padding:12px;border-radius:10px;margin-top:13px}.total strong{font-size:18px}.hint{font-size:11px;color:var(--muted);margin-top:9px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}.toolbar .left{display:flex;gap:8px;flex-wrap:wrap}.toolbar input,.toolbar select{width:auto;min-width:135px}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}table{width:100%;border-collapse:collapse;min-width:650px;background:white}th,td{padding:10px 11px;border-bottom:1px solid #edf1ed;text-align:left;font-size:12px;vertical-align:top}th{background:#f5f8f5;color:#63736a;font-size:10px;letter-spacing:.5px;text-transform:uppercase}tr:last-child td{border-bottom:0}.pill{display:inline-block;border-radius:20px;padding:3px 7px;font-size:10px;font-weight:800;background:#e7f4eb;color:#176b49;white-space:nowrap}.empty{text-align:center;color:var(--muted);padding:25px}.section{border-top:1px solid var(--line);margin-top:16px;padding-top:12px}.section h3{font-size:14px;margin:0 0 5px}.note{background:#fff8e9;color:#79581e;border-radius:9px;padding:11px;font-size:12px;margin-top:12px}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.summary div{background:#f5f8f5;border-radius:9px;padding:11px}.summary small{display:block;color:var(--muted);font-size:11px}.summary b{display:block;margin-top:4px;overflow-wrap:anywhere}.toast{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#183d2c;color:white;border-radius:10px;padding:11px 16px;z-index:9;box-shadow:0 5px 20px #0002}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}}@media(max-width:480px){.card{padding:14px}.nav button{flex:1;padding:9px 6px;font-size:12px}.grid2{gap:8px}.summary{grid-template-columns:1fr 1fr}.toolbar input,.toolbar select{min-width:0;width:100%}.toolbar .left{width:100%}.toolbar .left>*{flex:1}}
+.authpanel{max-width:480px;margin:24px auto;padding:22px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 20px #123e2d08}.authpanel h2{margin:0 0 4px}.authpanel p{color:var(--muted);font-size:13px}.authpanel .btn{width:100%;margin-top:12px}.authstatus{font-size:12px;color:#e2f1e7;margin-top:8px}.authbar{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-top:8px}.authbar button{border:1px solid #ffffff55;background:#ffffff16;color:white;border-radius:8px;padding:6px 10px;cursor:pointer;font:inherit;font-size:12px}#appMain[hidden],#loginPanel[hidden]{display:none!important}
+@media(max-width:480px){.authpanel{margin:18px 12px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Sistem pencatatan usaha</div><h1>Manajemen Usaha PET Botol</h1><p>Pembelian bodongan · biaya produksi · hasil sortir · transportasi · penjualan</p><div class="authbar"><span id="authStatus" class="authstatus">Memeriksa konfigurasi...</span><button id="logoutBtn" type="button" hidden>Keluar</button></div></div></header>
+<section class="authpanel" id="loginPanel">
+<h2>Login ke aplikasi</h2><p>Masuk dengan akun yang sudah dibuat oleh admin. Data transaksi akan disimpan di database online setelah Supabase dikonfigurasi.</p>
+<form id="loginForm"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="email pengguna"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="password"><button class="btn primary" type="submit">Login</button></form>
+<div id="setupNotice" class="note">Aplikasi belum terhubung ke Supabase. Isi URL proyek dan publishable/anon key di file <b>config.js</b>, lalu jalankan SQL yang disertakan. Jangan pernah memasukkan service_role/secret key ke aplikasi browser.</div>
+</section>
+<main class="wrap" id="appMain" hidden>
+<nav class="nav" aria-label="Menu aplikasi">
+<button class="active" data-page="dashboard">Dashboard</button><button data-page="pembelian">Pembelian</button><button data-page="produksi">Produksi & Hasil</button><button data-page="penjualan">Penjualan</button><button data-page="aset">Aset & Investasi</button><button data-page="biaya">Biaya Tetap</button><button data-page="laporan">Laporan</button>
+</nav>
+<section class="metrics">
+<div class="metric"><small>Total Pembelian</small><strong id="mPurchase">Rp0</strong><span>Nilai bodongan dibeli</span></div>
+<div class="metric"><small>Total Biaya</small><strong id="mCost">Rp0</strong><span>Produksi dan transportasi</span></div>
+<div class="metric"><small>Total Penjualan</small><strong id="mSales">Rp0</strong><span>Omzet hasil terjual</span></div>
+<div class="metric"><small>Selisih Kas</small><strong id="mBalance">Rp0</strong><span>Penjualan − pembelian − biaya</span></div>
+</section>
+
+<section class="page active" id="page-dashboard">
+<div class="layout" style="margin-top:15px">
+<div class="card"><h2>Ringkasan usaha</h2><p class="sub">Akumulasi semua line produksi.</p>
+<div class="summary"><div><small>Berat dibeli</small><b id="dKgBuy">0 kg</b></div><div><small>Berat hasil dicatat</small><b id="dKgOut">0 kg</b></div><div><small>Berat terjual</small><b id="dKgSale">0 kg</b></div></div>
+<div class="section"><h3>Hasil produksi tercatat</h3><div id="dProducts"></div></div>
+<div class="note">Selisih kas adalah gambaran arus uang sederhana. Untuk menghitung laba dengan tepat, nilai stok tersisa dan biaya tetap perlu diperhitungkan juga.</div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><div><h2>Transaksi terbaru</h2><p class="sub">Pembelian, hasil produksi, dan penjualan terbaru.</p></div><button class="btn soft" id="exportAll" type="button">Ekspor CSV ↓</button></div><div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Aktivitas</th><th>Line</th><th>Ringkasan</th><th>Nilai</th></tr></thead><tbody id="recentRows"></tbody></table><div class="empty" id="recentEmpty">Belum ada data transaksi.</div></div></div>
+</div>
+</section>
+
+<section class="page" id="page-pembelian">
+<div class="layout">
+<div class="card"><h2>Catat pembelian bodongan</h2><p class="sub">Satu catatan untuk setiap pembelian / muatan.</p>
+<form id="purchaseForm">
+<label>Tanggal pembelian</label><input type="date" id="pDate" required>
+<label>Line produksi</label><select id="pLine"><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select>
+<label>Pemasok / asal bodongan</label><input id="pSupplier" placeholder="Nama pemasok" required>
+<div class="grid2"><div><label>Berat dibeli (kg)</label><input type="number" id="pKg" min="0.01" step="any" required placeholder="0"></div><div><label>Harga beli per kg (Rp)</label><input type="number" id="pPrice" min="0" step="1" required placeholder="0"></div></div>
+<div class="section"><h3>Biaya yang terkait pembelian</h3><div class="grid2"><div><label>Biaya angkut pembelian (Rp)</label><input type="number" id="pTransport" min="0" value="0"></div><div><label>Biaya lain (Rp)</label><input type="number" id="pOther" min="0" value="0"></div></div></div>
+<div class="total"><span>Nilai pembelian + biaya terkait</span><strong id="pPreview">Rp0</strong></div>
+<button class="btn primary" type="submit">Simpan pembelian</button></form></div>
+<div class="card"><h2>Riwayat pembelian</h2><p class="sub">Pembelian bisa difilter berdasarkan line produksi.</p><div class="toolbar"><select id="purchaseFilter"><option value="all">Semua line</option><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select><input id="purchaseMonth" type="month" aria-label="Filter bulan pembelian"></div><div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Line / pemasok</th><th>Berat</th><th>Harga/kg</th><th>Nilai + biaya</th><th>Aksi</th></tr></thead><tbody id="purchaseRows"></tbody></table><div class="empty" id="purchaseEmpty">Belum ada pembelian.</div></div></div>
+</div>
+</section>
+
+<section class="page" id="page-produksi">
+<div class="layout">
+<div class="card"><h2>Catat proses & hasil</h2><p class="sub">Masukkan biaya bersih, pilah, press sebagai nominal tetap per proses, lalu catat hasil dari bodongan.</p>
+<form id="productionForm">
+<label>Tanggal proses</label><input type="date" id="rDate" required>
+<label>Line produksi</label><select id="rLine"><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select>
+<label>Pilih pembelian / muatan (opsional)</label><select id="rPurchase"><option value="">Tidak dikaitkan ke pembelian tertentu</option></select>
+<div class="section"><h3>Biaya tetap per proses produksi (Rp)</h3><div class="grid3"><div><label>Bersih</label><input type="number" id="cClean" min="0" value="0"></div><div><label>Pilah</label><input type="number" id="cSort" min="0" value="0"></div><div><label>Press</label><input type="number" id="cPress" min="0" value="0"></div></div></div>
+<div class="section"><h3>Hasil bodongan (kg)</h3><div class="grid2"><div><label>BN (kg)</label><input type="number" id="oBN" min="0" step="any" value="0"></div><div><label>BM (kg)</label><input type="number" id="oBM" min="0" step="any" value="0"></div><div><label>Minyak (kg)</label><input type="number" id="oMinyak" min="0" step="any" value="0"></div><div><label>Galon (kg)</label><input type="number" id="oGalon" min="0" step="any" value="0"></div><div><label>Warna (kg)</label><input type="number" id="oWarna" min="0" step="any" value="0"></div><div><label>Catatan</label><input id="rNote" placeholder="Opsional"></div></div></div>
+<div class="total"><span>Total biaya tetap proses ini</span><strong id="rPreview">Rp0</strong></div><button class="btn primary" type="submit">Simpan hasil produksi</button></form>
+</div>
+<div class="card"><h2>Riwayat produksi</h2><p class="sub">Hasil produksi dan biaya proses per line.</p><div class="toolbar"><select id="productionFilter"><option value="all">Semua line</option><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select><input type="month" id="productionMonth" aria-label="Filter bulan produksi"></div><div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Line</th><th>Hasil BN/BM/Minyak/Galon/Warna (kg)</th><th>Biaya proses</th><th>Aksi</th></tr></thead><tbody id="productionRows"></tbody></table><div class="empty" id="productionEmpty">Belum ada data produksi.</div></div></div>
+</div>
+</section>
+
+<section class="page" id="page-penjualan">
+<div class="layout">
+<div class="card"><h2>Catat penjualan</h2><p class="sub">Catat jenis hasil, berat yang dijual, dan nilai penjualan.</p>
+<form id="salesForm"><label>Tanggal penjualan</label><input type="date" id="sDate" required><label>Line produksi asal</label><select id="sLine"><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select><label>Jenis hasil</label><select id="sProduct"><option>BN</option><option>BM</option><option>Minyak</option><option>Galon</option><option>Warna</option></select><div class="grid2"><div><label>Berat terjual (kg)</label><input type="number" id="sKg" min="0.01" step="any" required placeholder="0"></div><div><label>Harga jual per kg (Rp)</label><input type="number" id="sPrice" min="0" step="1" required placeholder="0"></div></div><label>Pembeli (opsional)</label><input id="sBuyer" placeholder="Nama pembeli"><div class="total"><span>Total penjualan</span><strong id="sPreview">Rp0</strong></div><button class="btn primary" type="submit">Simpan penjualan</button></form>
+</div>
+<div class="card"><h2>Riwayat penjualan</h2><p class="sub">Omzet tercatat per jenis hasil.</p><div class="toolbar"><select id="salesFilter"><option value="all">Semua line</option><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select><input type="month" id="salesMonth" aria-label="Filter bulan penjualan"></div><div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Line</th><th>Hasil</th><th>Berat</th><th>Harga/kg</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="salesRows"></tbody></table><div class="empty" id="salesEmpty">Belum ada penjualan.</div></div></div>
+</div>
+</section>
+
+<section class="page" id="page-aset">
+<div class="metrics" style="margin-top:0"><div class="metric"><small>Total nilai aset tercatat</small><strong id="aTotal">Rp0</strong><span>Akumulasi harga perolehan aset</span></div><div class="metric"><small>Pengeluaran investasi awal</small><strong id="aInitial">Rp0</strong><span>Aset dan biaya awal lainnya</span></div></div>
+<div class="layout" style="margin-top:15px">
+<div class="card"><h2>Catat aset / investasi awal</h2><p class="sub">Untuk pembelian mesin, alat, bangunan, kendaraan, dan pengeluaran awal lainnya. Dicatat terpisah dari biaya operasional.</p>
+<form id="assetForm"><label>Tanggal transaksi</label><input type="date" id="aDate" required>
+<label>Jenis catatan</label><select id="aKind"><option value="asset">Pembelian aset</option><option value="initial">Biaya awal non-aset</option></select>
+<label>Nama aset / pengeluaran</label><input id="aName" required placeholder="Contoh: mesin press, timbangan, renovasi bangunan">
+<div class="grid2"><div><label>Kategori</label><select id="aCategory"><option>Mesin</option><option>Alat</option><option>Bangunan</option><option>Kendaraan</option><option>Instalasi / renovasi</option><option>Perlengkapan</option><option>Lainnya</option></select></div><div><label>Line / lokasi</label><select id="aLine"><option value="Umum">Umum / semua line</option><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select></div></div>
+<div class="grid2"><div><label>Jumlah unit</label><input type="number" id="aQty" min="1" step="1" value="1" required></div><div><label>Harga total (Rp)</label><input type="number" id="aPrice" min="0" step="1" value="0" required></div></div>
+<div class="grid2"><div><label>Sumber dana</label><select id="aFunding"><option>Modal sendiri</option><option>Pinjaman</option><option>Investor / mitra</option><option>Lainnya</option></select></div><div><label>Kondisi</label><select id="aCondition"><option>Baru</option><option>Bekas</option><option>Renovasi / pembangunan</option><option>Tidak berlaku</option></select></div></div>
+<label>Catatan (opsional)</label><input id="aNote" placeholder="Contoh: pembelian awal sebelum produksi berjalan">
+<div class="total"><span>Total pengeluaran tercatat</span><strong id="aPreview">Rp0</strong></div><button class="btn primary" type="submit">Simpan aset / investasi</button></form>
+<div class="note">Pembelian aset dicatat sebagai investasi, bukan biaya operasional harian. Biaya awal non-aset bisa digunakan untuk pengeluaran persiapan usaha yang bukan barang/aset.</div></div>
+<div class="card"><h2>Riwayat aset & investasi</h2><p class="sub">Filter catatan berdasarkan lokasi dan jenis transaksi.</p><div class="toolbar"><select id="assetFilter"><option value="all">Semua lokasi</option><option value="Umum">Umum / semua line</option><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select><select id="assetKindFilter"><option value="all">Semua jenis</option><option value="asset">Pembelian aset</option><option value="initial">Biaya awal non-aset</option></select></div>
+<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Aset / pengeluaran</th><th>Lokasi</th><th>Jumlah</th><th>Nilai</th><th>Sumber dana</th><th>Aksi</th></tr></thead><tbody id="assetRows"></tbody></table><div class="empty" id="assetEmpty">Belum ada catatan aset atau investasi.</div></div></div>
+</div></section>
+
+<section class="page" id="page-biaya">
+<div class="layout">
+<div class="card"><h2>Pengaturan biaya tetap</h2><p class="sub">Tetapkan nominal tetap untuk setiap proses produksi. Transportasi tetap dicatat sesuai biaya aktual setiap transaksi.</p>
+<form id="settingsForm"><div class="section"><h3>Biaya tetap per proses (Rp per proses)</h3><div class="grid3"><div><label>Bersih / per proses</label><input type="number" min="0" id="fClean"></div><div><label>Pilah / per proses</label><input type="number" min="0" id="fSort"></div><div><label>Press / per proses</label><input type="number" min="0" id="fPress"></div></div></div>
+<div class="section"><h3>Referensi transportasi (Rp per perjalanan)</h3><div class="grid2"><div><label>Angkut pembelian</label><input type="number" min="0" id="fBuyTransport"></div><div><label>Pengiriman penjualan</label><input type="number" min="0" id="fDelivery"></div></div></div>
+<div class="section"><h3>Biaya tetap lain per bulan (Rp)</h3><div class="grid2"><div><label>Sedayu</label><input type="number" min="0" id="fSedayu"></div><div><label>Pandak</label><input type="number" min="0" id="fPandak"></div><div><label>Sentolo</label><input type="number" min="0" id="fSentolo"></div><div><label>Biaya tetap umum</label><input type="number" min="0" id="fGeneral"></div></div></div><button class="btn primary" type="submit">Simpan tarif biaya</button></form>
+<div class="note">Biaya yang benar-benar terjadi tetap dicatat di transaksi pembelian atau produksi. Biaya bersih, pilah, dan press pada halaman ini adalah nominal tetap per proses. Transportasi pada halaman ini hanya referensi; biaya aktual tetap diinput pada pembelian atau pengiriman.</div></div>
+<div class="card"><h2>Transportasi pengiriman</h2><p class="sub">Catat ongkos pengiriman hasil jual sebagai biaya terpisah.</p>
+<form id="deliveryForm"><label>Tanggal pengiriman</label><input type="date" id="tDate" required><label>Line produksi</label><select id="tLine"><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select><div class="grid2"><div><label>Tujuan / pembeli</label><input id="tDestination" required placeholder="Nama tujuan"></div><div><label>Biaya pengiriman (Rp)</label><input id="tCost" type="number" min="0" required placeholder="0"></div></div><label>Catatan (opsional)</label><input id="tNote"><button class="btn primary" type="submit">Simpan biaya pengiriman</button></form>
+<div class="section"><h3>Riwayat biaya pengiriman</h3><div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Line / tujuan</th><th>Biaya</th><th>Aksi</th></tr></thead><tbody id="deliveryRows"></tbody></table><div class="empty" id="deliveryEmpty">Belum ada biaya pengiriman.</div></div></div>
+</div>
+</div>
+</section>
+
+<section class="page" id="page-laporan">
+<div class="card"><h2>Laporan usaha</h2><p class="sub">Pilih bulan dan line untuk melihat ringkasan. Kosongkan bulan untuk semua periode.</p>
+<div class="toolbar"><div class="left"><input type="month" id="reportMonth" aria-label="Bulan laporan"><select id="reportLine"><option value="all">Semua line</option><option>Sedayu</option><option>Pandak</option><option>Sentolo</option></select></div><button class="btn soft" id="exportReport" type="button">Ekspor laporan CSV ↓</button></div>
+<div class="summary">
+<div><small>Nilai pembelian bodongan</small><b id="lPurchase">Rp0</b></div><div><small>Biaya produksi (bersih/pilah/press)</small><b id="lProduction">Rp0</b></div><div><small>Transportasi pembelian + pengiriman</small><b id="lTransport">Rp0</b></div><div><small>Penjualan / omzet</small><b id="lSales">Rp0</b></div><div><small>Selisih kas</small><b id="lCash">Rp0</b></div><div><small>Hasil produksi tercatat</small><b id="lOutput">0 kg</b></div></div>
+<div class="section"><h3>Rincian hasil per jenis (kg)</h3><div class="tablewrap"><table><thead><tr><th>Jenis</th><th>Hasil produksi (kg)</th><th>Terjual (kg)</th><th>Selisih tercatat (kg)</th><th>Omzet</th></tr></thead><tbody id="reportProducts"></tbody></table></div></div>
+<div class="section"><h3>Ringkasan per line</h3><div class="tablewrap"><table><thead><tr><th>Line</th><th>Pembelian</th><th>Biaya proses</th><th>Transportasi</th><th>Penjualan</th><th>Selisih kas</th></tr></thead><tbody id="reportLines"></tbody></table></div></div>
+<div class="note">Selisih kas = omzet penjualan − nilai pembelian − biaya proses − biaya transportasi. Angka ini belum tentu sama dengan laba bersih karena stok, biaya tetap bulanan, dan metode penilaian persediaan belum dimasukkan otomatis.</div></div>
+</section>
+<p class="hint" id="storageHint">Saat login, data tersinkron ke database online. Ekspor CSV secara berkala untuk cadangan.</p>
+</main><div class="toast" id="toast"></div>
+<script>
+(()=>{
+const KEY='petBotolManager_v2',SETKEY='petBotolSettings_v2';
+const SUPABASE_URL=window.PETBOTOL_SUPABASE_URL||'',SUPABASE_KEY=window.PETBOTOL_SUPABASE_KEY||'';
+let supabaseClient=null,currentSession=null,cloudReady=false,saveChain=Promise.resolve();
+const types=['BN','BM','Minyak','Galon','Warna'],lines=['Sedayu','Pandak','Sentolo'];
+let db={purchases:[],productions:[],sales:[],deliveries:[],assets:[]},settings={clean:0,sort:0,press:0,buyTransport:0,delivery:0,Sedayu:0,Pandak:0,Sentolo:0,general:0};
+const $=id=>document.getElementById(id),num=id=>Math.max(0,Number($(id).value)||0);
+const money=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);
+const kg=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:2}).format(Number(n)||0)+' kg';
+const today=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(s){$('toast').textContent=s;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2300)}
+function save(){
+ localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(SETKEY,JSON.stringify(settings));
+ if(!supabaseClient||!currentSession||!cloudReady)return;
+ const payload={id:1,data:db,settings,updated_at:new Date().toISOString(),updated_by:currentSession.user.id};
+ saveChain=saveChain.then(async()=>{const {error}=await supabaseClient.from('pet_botol_app_state').upsert(payload,{onConflict:'id'});if(error){console.error(error);$('storageHint').textContent='Gagal menyinkronkan ke database. Periksa koneksi dan izin Supabase.';toast('Gagal menyimpan ke database online')}else{$('storageHint').textContent='Tersinkron online · perubahan terakhir tersimpan ke database.'}}).catch(err=>console.error(err));
+}
+function loadLocal(){try{let x=JSON.parse(localStorage.getItem(KEY)||'{}');db={purchases:Array.isArray(x.purchases)?x.purchases:[],productions:Array.isArray(x.productions)?x.productions:[],sales:Array.isArray(x.sales)?x.sales:[],deliveries:Array.isArray(x.deliveries)?x.deliveries:[],assets:Array.isArray(x.assets)?x.assets:[]}}catch(e){}try{settings={...settings,...JSON.parse(localStorage.getItem(SETKEY)||'{}')}}catch(e){}}
+function hasLocalData(){return Object.values(db).some(v=>Array.isArray(v)&&v.length>0)}
+async function loadCloud(){
+ const {data,error}=await supabaseClient.from('pet_botol_app_state').select('data,settings').eq('id',1).maybeSingle();
+ if(error)throw error;
+ if(data){const x=data.data||{};db={purchases:Array.isArray(x.purchases)?x.purchases:[],productions:Array.isArray(x.productions)?x.productions:[],sales:Array.isArray(x.sales)?x.sales:[],deliveries:Array.isArray(x.deliveries)?x.deliveries:[],assets:Array.isArray(x.assets)?x.assets:[]};settings={...settings,...(data.settings||{})};localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(SETKEY,JSON.stringify(settings));}
+ else if(hasLocalData()&&confirm('Database online masih kosong. Ditemukan data lokal di perangkat ini. Unggah data lokal tersebut ke database online?')){cloudReady=true;save();await saveChain;}
+ cloudReady=true;render();fillSettings();updatePreviews();updateAssetPreview();$('storageHint').textContent='Tersinkron online · data dibagikan oleh akun yang diizinkan pada proyek ini.';
+}
+function sum(arr,key='total'){return arr.reduce((a,x)=>a+(Number(x[key])||0),0)}
+function costs(){return sum(db.productions,'cost')+sum(db.purchases,'transport')+sum(db.purchases,'other')+sum(db.deliveries,'cost')}
+function allEvents(){return [
+...db.purchases.map(x=>({date:x.date,activity:'Pembelian bodongan',line:x.line,detail:x.supplier+' · '+kg(x.kg),value:x.total,id:x.id,kind:'purchase'})),
+...db.productions.map(x=>({date:x.date,activity:'Produksi & hasil',line:x.line,detail:types.map(t=>t+': '+x.outputs[t]).join(', ')+' kg',value:x.cost,id:x.id,kind:'production'})),
+...db.sales.map(x=>({date:x.date,activity:'Penjualan '+x.product,line:x.line,detail:kg(x.kg)+(x.buyer?' · '+x.buyer:''),value:x.total,id:x.id,kind:'sale'})),
+...db.deliveries.map(x=>({date:x.date,activity:'Transportasi kirim',line:x.line,detail:x.destination,value:x.cost,id:x.id,kind:'delivery'})),
+...db.assets.map(x=>({date:x.date,activity:x.kind==='asset'?'Investasi aset':'Biaya awal usaha',line:x.line,detail:x.name+' · '+x.category,value:x.price,id:x.id,kind:'asset'}))
+].sort((a,b)=>b.date.localeCompare(a.date))}
+function deleteBtn(kind,idv){return `<button class="btn danger" data-del="${kind}" data-id="${esc(idv)}" type="button">Hapus</button>`}
+function bindDelete(){document.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('Hapus catatan ini?'))return;const map={purchase:'purchases',production:'productions',sale:'sales',delivery:'deliveries',asset:'assets'},k=map[b.dataset.del];db[k]=db[k].filter(x=>x.id!==b.dataset.id);save();render();toast('Catatan dihapus')}))}
+function render(){
+ const purchaseTotal=sum(db.purchases,'total'),salesTotal=sum(db.sales,'total'),allCosts=costs();
+ $('mPurchase').textContent=money(purchaseTotal);$('mCost').textContent=money(allCosts);$('mSales').textContent=money(salesTotal);$('mBalance').textContent=money(salesTotal-purchaseTotal-allCosts);
+ $('dKgBuy').textContent=kg(sum(db.purchases,'kg'));$('dKgSale').textContent=kg(sum(db.sales,'kg'));$('dKgOut').textContent=kg(db.productions.reduce((a,x)=>a+sum(Object.values(x.outputs).map(v=>({v}),'v'),'v'),0));
+ $('dProducts').innerHTML=types.map(t=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e8eee9"><span>${t}</span><b>${kg(db.productions.reduce((a,x)=>a+(Number(x.outputs[t])||0),0))}</b></div>`).join('');
+ const ev=allEvents().slice(0,10);$('recentRows').innerHTML=ev.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.activity)}</td><td><span class="pill">${esc(x.line)}</span></td><td>${esc(x.detail)}</td><td>${money(x.value)}</td></tr>`).join('');$('recentEmpty').style.display=ev.length?'none':'block';
+ const pf=$('purchaseFilter').value,pm=$('purchaseMonth').value,ps=db.purchases.filter(x=>(pf==='all'||x.line===pf)&&(!pm||x.date.startsWith(pm))).sort((a,b)=>b.date.localeCompare(a.date));
+ $('purchaseRows').innerHTML=ps.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="pill">${esc(x.line)}</span><br>${esc(x.supplier)}</td><td>${kg(x.kg)}</td><td>${money(x.price)}</td><td><b>${money(x.total)}</b></td><td>${deleteBtn('purchase',x.id)}</td></tr>`).join('');$('purchaseEmpty').style.display=ps.length?'none':'block';
+ const rf=$('productionFilter').value,rm=$('productionMonth').value,rs=db.productions.filter(x=>(rf==='all'||x.line===rf)&&(!rm||x.date.startsWith(rm))).sort((a,b)=>b.date.localeCompare(a.date));
+ $('productionRows').innerHTML=rs.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="pill">${esc(x.line)}</span></td><td>${types.map(t=>`${t}: ${kg(x.outputs[t])}`).join('<br>')}</td><td><b>${money(x.cost)}</b><br><small>Bersih ${money(x.clean)} · Pilah ${money(x.sort)} · Press ${money(x.press)}</small></td><td>${deleteBtn('production',x.id)}</td></tr>`).join('');$('productionEmpty').style.display=rs.length?'none':'block';
+ const sf=$('salesFilter').value,sm=$('salesMonth').value,ss=db.sales.filter(x=>(sf==='all'||x.line===sf)&&(!sm||x.date.startsWith(sm))).sort((a,b)=>b.date.localeCompare(a.date));
+ $('salesRows').innerHTML=ss.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="pill">${esc(x.line)}</span></td><td>${esc(x.product)}${x.buyer?'<br>'+esc(x.buyer):''}</td><td>${kg(x.kg)}</td><td>${money(x.price)}</td><td><b>${money(x.total)}</b></td><td>${deleteBtn('sale',x.id)}</td></tr>`).join('');$('salesEmpty').style.display=ss.length?'none':'block';
+ $('deliveryRows').innerHTML=db.deliveries.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${esc(x.date)}</td><td><span class="pill">${esc(x.line)}</span><br>${esc(x.destination)}</td><td><b>${money(x.cost)}</b></td><td>${deleteBtn('delivery',x.id)}</td></tr>`).join('');$('deliveryEmpty').style.display=db.deliveries.length?'none':'block';
+ const af=$('assetFilter').value,ak=$('assetKindFilter').value,as=db.assets.filter(x=>(af==='all'||x.line===af)&&(ak==='all'||x.kind===ak)).sort((a,b)=>b.date.localeCompare(a.date));
+ $('assetRows').innerHTML=as.map(x=>`<tr><td>${esc(x.date)}</td><td><b>${esc(x.name)}</b><br><small>${esc(x.category)} · ${esc(x.condition||'-')}</small>${x.note?'<br><small>'+esc(x.note)+'</small>':''}</td><td><span class="pill">${esc(x.line)}</span></td><td>${x.qty||1} unit</td><td><b>${money(x.price)}</b></td><td>${esc(x.funding||'-')}</td><td>${deleteBtn('asset',x.id)}</td></tr>`).join('');$('assetEmpty').style.display=as.length?'none':'block';
+ $('aTotal').textContent=money(sum(db.assets.filter(x=>x.kind==='asset'),'price'));$('aInitial').textContent=money(sum(db.assets,'price'));
+ refreshPurchaseOptions();renderReport();bindDelete();
+}
+function refreshPurchaseOptions(){const old=$('rPurchase').value;$('rPurchase').innerHTML='<option value="">Tidak dikaitkan ke pembelian tertentu</option>'+db.purchases.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<option value="${esc(x.id)}">${esc(x.date)} · ${esc(x.line)} · ${esc(x.supplier)} · ${kg(x.kg)}</option>`).join('');if([...$('rPurchase').options].some(o=>o.value===old))$('rPurchase').value=old}
+function renderReport(){
+ const month=$('reportMonth').value,line=$('reportLine').value,ok=x=>(line==='all'||x.line===line||x.line==='Umum')&&(!month||x.date.startsWith(month));
+ const p=db.purchases.filter(ok),r=db.productions.filter(ok),s=db.sales.filter(ok),d=db.deliveries.filter(ok);
+ const buy=sum(p,'total'),prod=sum(r,'cost'),transport=sum(p,'transport')+sum(p,'other')+sum(d,'cost'),sale=sum(s,'total');
+ $('lPurchase').textContent=money(buy);$('lProduction').textContent=money(prod);$('lTransport').textContent=money(transport);$('lSales').textContent=money(sale);$('lCash').textContent=money(sale-buy-prod-transport);
+ const output=type=>r.reduce((a,x)=>a+(Number(x.outputs[type])||0),0);$('lOutput').textContent=kg(types.reduce((a,t)=>a+output(t),0));
+ $('reportProducts').innerHTML=types.map(t=>{const out=output(t),sold=s.filter(x=>x.product===t).reduce((a,x)=>a+x.kg,0),revenue=s.filter(x=>x.product===t).reduce((a,x)=>a+x.total,0);return `<tr><td>${t}</td><td>${kg(out)}</td><td>${kg(sold)}</td><td>${kg(out-sold)}</td><td>${money(revenue)}</td>`}).join('');
+ $('reportLines').innerHTML=lines.map(l=>{const lp=db.purchases.filter(x=>x.line===l&&(!month||x.date.startsWith(month))),lr=db.productions.filter(x=>x.line===l&&(!month||x.date.startsWith(month))),ls=db.sales.filter(x=>x.line===l&&(!month||x.date.startsWith(month))),ld=db.deliveries.filter(x=>x.line===l&&(!month||x.date.startsWith(month)));const b=sum(lp,'total'),pr=sum(lr,'cost'),tr=sum(lp,'transport')+sum(lp,'other')+sum(ld,'cost'),sa=sum(ls,'total');return `<tr><td>${l}</td><td>${money(b)}</td><td>${money(pr)}</td><td>${money(tr)}</td><td>${money(sa)}</td><td><b>${money(sa-b-pr-tr)}</b></td></tr>`}).join('');
+}
+function updatePreviews(){$('pPreview').textContent=money(num('pKg')*num('pPrice')+num('pTransport')+num('pOther'));$('rPreview').textContent=money(num('cClean')+num('cSort')+num('cPress'));$('sPreview').textContent=money(num('sKg')*num('sPrice'))}
+['pKg','pPrice','pTransport','pOther','cClean','cSort','cPress','sKg','sPrice'].forEach(idv=>$(idv).addEventListener('input',updatePreviews));
+$('assetForm').addEventListener('submit',e=>{e.preventDefault();db.assets.push({id:id(),date:$('aDate').value,kind:$('aKind').value,name:$('aName').value.trim(),category:$('aCategory').value,line:$('aLine').value,qty:num('aQty')||1,price:num('aPrice'),funding:$('aFunding').value,condition:$('aCondition').value,note:$('aNote').value.trim()});save();e.target.reset();$('aDate').value=today();$('aQty').value='1';$('aPrice').value='0';updateAssetPreview();render();toast('Catatan aset / investasi tersimpan')});
+$('aPrice').addEventListener('input',updateAssetPreview);function updateAssetPreview(){$('aPreview').textContent=money(num('aPrice'))}
+$('purchaseForm').addEventListener('submit',e=>{e.preventDefault();const x={id:id(),date:$('pDate').value,line:$('pLine').value,supplier:$('pSupplier').value.trim(),kg:num('pKg'),price:num('pPrice'),transport:num('pTransport'),other:num('pOther')};x.goods=x.kg*x.price;x.total=x.goods+x.transport+x.other;db.purchases.push(x);save();e.target.reset();$('pDate').value=today();$('pTransport').value='0';$('pOther').value='0';updatePreviews();render();toast('Pembelian tersimpan')});
+$('productionForm').addEventListener('submit',e=>{e.preventDefault();const x={id:id(),date:$('rDate').value,line:$('rLine').value,purchaseId:$('rPurchase').value,clean:num('cClean'),sort:num('cSort'),press:num('cPress'),outputs:{BN:num('oBN'),BM:num('oBM'),Minyak:num('oMinyak'),Galon:num('oGalon'),Warna:num('oWarna')},note:$('rNote').value.trim()};x.cost=x.clean+x.sort+x.press;db.productions.push(x);save();e.target.reset();$('rDate').value=today();['cClean','cSort','cPress','oBN','oBM','oMinyak','oGalon','oWarna'].forEach(i=>$(i).value='0');updatePreviews();render();toast('Hasil produksi tersimpan')});
+$('salesForm').addEventListener('submit',e=>{e.preventDefault();const x={id:id(),date:$('sDate').value,line:$('sLine').value,product:$('sProduct').value,kg:num('sKg'),price:num('sPrice'),buyer:$('sBuyer').value.trim()};x.total=x.kg*x.price;db.sales.push(x);save();e.target.reset();$('sDate').value=today();updatePreviews();render();toast('Penjualan tersimpan')});
+$('deliveryForm').addEventListener('submit',e=>{e.preventDefault();db.deliveries.push({id:id(),date:$('tDate').value,line:$('tLine').value,destination:$('tDestination').value.trim(),cost:num('tCost'),note:$('tNote').value.trim()});save();e.target.reset();$('tDate').value=today();render();toast('Biaya pengiriman tersimpan')});
+$('settingsForm').addEventListener('submit',e=>{e.preventDefault();settings={clean:num('fClean'),sort:num('fSort'),press:num('fPress'),buyTransport:num('fBuyTransport'),delivery:num('fDelivery'),Sedayu:num('fSedayu'),Pandak:num('fPandak'),Sentolo:num('fSentolo'),general:num('fGeneral')};save();toast('Tarif acuan disimpan')});
+function fillSettings(){const map={fClean:'clean',fSort:'sort',fPress:'press',fBuyTransport:'buyTransport',fDelivery:'delivery',fSedayu:'Sedayu',fPandak:'Pandak',fSentolo:'Sentolo',fGeneral:'general'};Object.entries(map).forEach(([el,k])=>$(el).value=settings[k]||0)}
+['purchaseFilter','purchaseMonth','productionFilter','productionMonth','salesFilter','salesMonth','assetFilter','assetKindFilter'].forEach(i=>$(i).addEventListener('input',render));
+['reportMonth','reportLine'].forEach(i=>$(i).addEventListener('input',renderReport));
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+b.dataset.page));if(b.dataset.page==='laporan')renderReport()}));
+function downloadCSV(name,rows){const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name+'-'+today()+'.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('File CSV dibuat')}
+$('exportAll').addEventListener('click',()=>{const rows=[['Tanggal','Aktivitas','Line','Ringkasan','Nilai (Rp)'],...allEvents().map(x=>[x.date,x.activity,x.line,x.detail,x.value])];if(rows.length===1){toast('Belum ada data untuk diekspor');return}downloadCSV('catatan-usaha-pet-botol',rows)});
+$('exportReport').addEventListener('click',()=>{const month=$('reportMonth').value,line=$('reportLine').value,ok=x=>(line==='all'||x.line===line||x.line==='Umum')&&(!month||x.date.startsWith(month));const rows=[['Jenis','Tanggal','Line','Keterangan','Jumlah/berat','Harga satuan','Nilai'],...db.purchases.filter(ok).map(x=>['Pembelian',x.date,x.line,x.supplier,x.kg,x.price,x.total]),...db.productions.filter(ok).map(x=>['Produksi',x.date,x.line,types.map(t=>t+': '+x.outputs[t]+' kg').join(', '),'', '',x.cost]),...db.sales.filter(ok).map(x=>['Penjualan',x.date,x.line,x.product,x.kg,x.price,x.total]),...db.deliveries.filter(ok).map(x=>['Pengiriman',x.date,x.line,x.destination,'','',x.cost]),...db.assets.filter(ok).map(x=>[x.kind==='asset'?'Investasi aset':'Biaya awal',x.date,x.line,x.name+' ('+x.category+')',x.qty,'',x.price])];downloadCSV('laporan-pet-botol',rows)});
+['pDate','rDate','sDate','tDate','aDate'].forEach(i=>$(i).value=today());
+ loadLocal();fillSettings();render();updatePreviews();updateAssetPreview();
+ const configured=Boolean(SUPABASE_URL&&SUPABASE_KEY&&window.supabase&&window.supabase.createClient);
+ if(configured){supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);$('setupNotice').hidden=true;$('authStatus').textContent='Supabase siap · silakan login';supabaseClient.auth.getSession().then(({data})=>{if(data.session)activateSession(data.session)});supabaseClient.auth.onAuthStateChange((_event,session)=>{if(session&&!currentSession)activateSession(session);else if(!session&&currentSession)deactivateSession()});}
+ else{$('authStatus').textContent='Belum terhubung ke database';$('loginForm').querySelector('button').disabled=true;$('loginForm').querySelector('button').textContent='Konfigurasi Supabase dulu';}
+ async function activateSession(session){currentSession=session;$('loginPanel').hidden=true;$('appMain').hidden=false;$('logoutBtn').hidden=false;$('authStatus').textContent='Login: '+(session.user.email||'pengguna');try{await loadCloud()}catch(err){console.error(err);$('storageHint').textContent='Tidak dapat membaca database. Periksa SQL, RLS, dan konfigurasi Supabase.';toast('Gagal memuat data online');cloudReady=false}}
+ function deactivateSession(){currentSession=null;cloudReady=false;$('loginPanel').hidden=false;$('appMain').hidden=true;$('logoutBtn').hidden=true;$('authStatus').textContent='Sesi sudah berakhir'}
+ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!supabaseClient)return;const btn=$('loginForm').querySelector('button');btn.disabled=true;btn.textContent='Memproses...';const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});btn.disabled=false;btn.textContent='Login';if(error){toast('Login gagal: '+error.message);return}});
+ $('logoutBtn').addEventListener('click',async()=>{if(supabaseClient)await supabaseClient.auth.signOut();deactivateSession()});
+})();
+</script></body></html>
