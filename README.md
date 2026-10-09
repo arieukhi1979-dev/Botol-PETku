@@ -22,3 +22,6 @@
 
 ## Mode tanpa login (uji coba)
 Aplikasi ini tidak meminta akun login. Jalankan ulang `supabase.sql` di SQL Editor untuk mengaktifkan akses anon. **Peringatan:** semua orang yang mengetahui URL aplikasi/proyek dapat membaca, menimpa, atau menghapus data usaha. Jangan gunakan untuk data sensitif atau produksi; aktifkan kembali autentikasi dan kebijakan akses terbatas sebelum dipakai sungguhan.
+
+
+Pembaruan: formulir Pembelian memiliki pilihan Barang yang dibeli: Bodong kotor, Bodong bersih, Mix bersih, Minyak Bersih, Press BN, Press BM, Press Minyak, Press Warna, Press Galon, dan Galon.
